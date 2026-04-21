@@ -1,0 +1,113 @@
+/* =====================================================
+   header.css
+   このファイルは「画面全体の基本デザイン」と
+   ヘッダー周辺の共通スタイルを定義しています。
+   ===================================================== */
+
+/* :root はCSS変数（カラーパレット）を置く場所です。
+   色をここで一元管理すると、後からテーマ変更しやすくなります。 */
+:root {
+    /* ページ全体の背景色 */
+    --bg-page: #faf7f2;
+    /* ヘッダーパネル背景 */
+    --bg-header: #f0e9d8;
+    /* カード背景 */
+    --bg-card: #fffdf8;
+    /* 枠線色 */
+    --border: #e8dfc8;
+    /* 基本文字色 */
+    --text-main: #5a4232;
+    /* 補助文字色 */
+    --text-muted: #b09a80;
+    /* 見出し文字色 */
+    --text-head: #6b5b45;
+    /* ボタン背景 */
+    --btn-bg: #d4b896;
+    /* ボタン文字色 */
+    --btn-text: #5a3e28;
+    /* 優先度: 高 */
+    --p-high: #e07b6a;
+    /* 優先度: 中 */
+    --p-mid: #e0c06a;
+    /* 優先度: 低 */
+    --p-low: #8ec98e;
+    /* 優先度バッジ（高）背景 */
+    --badge-high-bg: #fae6e3;
+    /* 優先度バッジ（高）文字 */
+    --badge-high-text: #a85040;
+    /* 優先度バッジ（中）背景 */
+    --badge-mid-bg: #faf3d8;
+    /* 優先度バッジ（中）文字 */
+    --badge-mid-text: #9a7a30;
+    /* 優先度バッジ（低）背景 */
+    --badge-low-bg: #e8f5e8;
+    /* 優先度バッジ（低）文字 */
+    --badge-low-text: #4a8a4a;
+    /* 期限超過色 */
+    --overdue: #c0604a;
+}
+
+/* すべての要素で box-sizing を border-box に統一。
+   幅計算が直感的になり、レイアウト崩れを減らせます。 */
+* {
+    box-sizing: border-box;
+}
+
+/* body はページ全体の基本設定です。 */
+body {
+    /* 背景色 */
+    background: var(--bg-page);
+    /* フォント指定（優先順） */
+    font-family: 'Klee One', cursive, sans-serif;
+    /* 中央寄せのため最大幅を設定 */
+    max-width: 860px;
+    /* 上下余白24px、左右中央配置 */
+    margin: 24px auto;
+    /* 画面端に貼りつかないよう左右余白 */
+    padding: 0 16px;
+    /* 文字色 */
+    color: var(--text-main);
+}
+
+/* 画面上部のヘッダーボックス */
+.header {
+    background: var(--bg-header);
+    /* 角丸 */
+    border-radius: 12px;
+    /* 内側余白 */
+    padding: 14px 20px;
+    /* うっすら枠線 */
+    border: 1px solid #e4d9c4;
+    /* タイトルとボタンを横並び */
+    display: flex;
+    /* 左右に分散配置 */
+    justify-content: space-between;
+    /* 縦中央揃え */
+    align-items: center;
+    /* 下の要素との間隔 */
+    margin-bottom: 20px;
+}
+
+/* ヘッダータイトル */
+.header h1 {
+    margin: 0;
+    font-size: 22px;
+    color: var(--text-head);
+}
+
+/* 追加ボタンの見た目 */
+.add-btn {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    /* button標準枠線を消す */
+    border: none;
+    /* 丸いボタン形状 */
+    border-radius: 20px;
+    padding: 7px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    /* マウスカーソルを手にする */
+    cursor: pointer;
+    /* aタグ利用時の下線を消す */
+    text-decoration: none;
+}

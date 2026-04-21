@@ -1,0 +1,218 @@
+/* =====================================================
+   index.css
+   タスク一覧・カード・フォームの見た目を定義します。
+   ===================================================== */
+
+/* ulの初期余白や点を消して、カード型レイアウトを作りやすくします。 */
+.task-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* セクション見出し（今回は一部で未使用ですが、拡張用に残しています） */
+.section-title {
+    margin: 18px 0 10px;
+    color: var(--text-head);
+    font-size: 18px;
+}
+
+/* 1件のタスクカード本体 */
+.task-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    /* 中の要素（優先度ドット、本文、操作）を横並びにする */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 完了済みカードは半透明で「済」を視覚化 */
+.task-card.done {
+    opacity: 0.5;
+}
+
+/* todayピン留めなど、強調表示用クラス */
+.task-card.pinned {
+    border: 1px solid var(--btn-bg);
+    box-shadow: 0 0 0 1px #efe2cc;
+}
+
+/* タイトル/詳細など本文領域 */
+.task-main {
+    /* 余った幅を優先して使う */
+    flex: 1;
+    /* 長文の時にレイアウトを壊しにくくする */
+    min-width: 0;
+}
+
+/* タスクタイトル */
+.task-title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: var(--text-main);
+    /* 長い単語を折り返す */
+    word-break: break-word;
+}
+
+/* 完了済みは打ち消し線 */
+.task-card.done .task-title {
+    text-decoration: line-through;
+}
+
+/* タスク詳細文 */
+.task-detail {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--text-main);
+    /* 改行を維持して表示 */
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* メタ情報（優先度/期限/カウントダウン）を横並び */
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    /* 小画面で折り返す */
+    flex-wrap: wrap;
+}
+
+/* エラー一覧のli用の左余白 */
+.task-meta li {
+    margin-left: 16px;
+}
+
+/* 優先度の丸ドット共通設定 */
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* 高優先度色 */
+.dot-high {
+    background: var(--p-high);
+}
+
+/* 中優先度色 */
+.dot-mid {
+    background: var(--p-mid);
+}
+
+/* 低優先度色 */
+.dot-low {
+    background: var(--p-low);
+}
+
+/* 優先度バッジ共通 */
+.priority-badge {
+    display: inline-block;
+    /* 999pxで完全な丸み */
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+/* 高バッジ */
+.badge-high {
+    background: var(--badge-high-bg);
+    color: var(--badge-high-text);
+}
+
+/* 中バッジ */
+.badge-mid {
+    background: var(--badge-mid-bg);
+    color: var(--badge-mid-text);
+}
+
+/* 低バッジ */
+.badge-low {
+    background: var(--badge-low-bg);
+    color: var(--badge-low-text);
+}
+
+/* 期限超過など注意表示色 */
+.overdue {
+    color: var(--overdue);
+}
+
+/* 右側の操作ボタン群 */
+.task-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* 操作ボタン共通 */
+.act-btn {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd0bb;
+    background: #faf7f2;
+    color: #8a7060;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+}
+
+/* カウントダウン文字を少し目立たせる */
+.countdown {
+    font-weight: bold;
+}
+
+/* formにtask-cardクラスをつけたとき、
+   既定のflexを使わず縦レイアウトにする */
+form.task-card {
+    display: block;
+}
+
+/* フォーム下部のボタン群との余白 */
+form.task-card .task-actions {
+    margin-top: 10px;
+}
+
+/* 入力系部品の共通デザイン */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    /* 親幅いっぱい */
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #fff;
+}
+
+/* ラベル文字色 */
+label {
+    color: var(--text-head);
+}
+
+/* 画面下部リンクエリア */
+.bottom-links {
+    margin: 16px 0 6px;
+}
+
+/* 空状態メッセージ */
+.empty {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+}
