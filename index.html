@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タスク管理システム</title>
+    <link href="https://fonts.googleapis.com/css2?family=Klee+One&display=swap" rel="stylesheet">
+    <style>
+/* ===== CSS Variables ===== */
+:root {
+    --bg-page: #faf7f2;
+    --bg-header: #f0e9d8;
+    --bg-card: #fffdf8;
+    --border: #e8dfc8;
+    --text-main: #5a4232;
+    --text-muted: #b09a80;
+    --text-head: #6b5b45;
+    --btn-bg: #d4b896;
+    --btn-text: #5a3e28;
+    --p-high: #e07b6a;
+    --p-mid: #e0c06a;
+    --p-low: #8ec98e;
+    --badge-high-bg: #fae6e3;
+    --badge-high-text: #a85040;
+    --badge-mid-bg: #faf3d8;
+    --badge-mid-text: #9a7a30;
+    --badge-low-bg: #e8f5e8;
+    --badge-low-text: #4a8a4a;
+    --overdue: #c0604a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background: var(--bg-page);
+    font-family: 'Klee One', cursive, sans-serif;
+    max-width: 860px;
+    margin: 24px auto;
+    padding: 0 16px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+/* ===== Header ===== */
+.header {
+    background: var(--bg-header);
+    border-radius: 12px;
+    padding: 14px 20px;
+    border: 1px solid #e4d9c4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.header h1 { margin: 0; font-size: 22px; color: var(--text-head); }
+
+.add-btn {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 20px;
+    padding: 7px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* ===== Task list ===== */
+.task-list { margin: 0; padding: 0; list-style: none; }
+
+.task-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.task-card.done { opacity: 0.5; }
+.task-card.pinned { border: 1px solid var(--btn-bg); box-shadow: 0 0 0 1px #efe2cc; }
+
+.task-main { flex: 1; min-width: 0; }
+
+.task-title { margin: 0 0 4px; font-size: 16px; color: var(--text-main); word-break: break-word; }
+.task-card.done .task-title { text-decoration: line-through; }
+
+.task-detail { margin: 0 0 6px; font-size: 13px; color: var(--text-main); white-space: pre-wrap; word-break: break-word; }
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+}
+.task-meta li { margin-left: 16px; }
+
+.priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-high { background: var(--p-high); }
+.dot-mid  { background: var(--p-mid); }
+.dot-low  { background: var(--p-low); }
+
+.priority-badge { display: inline-block; border-radius: 999px; padding: 2px 8px; font-size: 11px; line-height: 1.2; }
+.badge-high { background: var(--badge-high-bg); color: var(--badge-high-text); }
+.badge-mid  { background: var(--badge-mid-bg);  color: var(--badge-mid-text); }
+.badge-low  { background: var(--badge-low-bg);  color: var(--badge-low-text); }
+
+.overdue { color: var(--overdue); }
+
+.task-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.act-btn {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd0bb;
+    background: #faf7f2;
+    color: #8a7060;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+}
+
+.bottom-links { margin: 16px 0 6px; }
+
+.empty {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== Forms ===== */
+form.task-card { display: block; }
+form.task-card .task-actions { margin-top: 10px; }
+
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #fff;
+}
+label { color: var(--text-head); }
+
+/* ===== Screen visibility ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== Section titles ===== */
+.section-heading {
+    margin: 18px 0 8px;
+    color: var(--text-head);
+    font-size: 18px;
+}
+    </style>
+</head>
+<body>
+
+<!-- ===================== SCREEN: INDEX ===================== -->
+<div id="screen-index" class="screen active">
+    <div class="header">
+        <h1>タスク一覧</h1>
+        <button class="add-btn" onclick="showAdd()">＋ 追加</button>
+    </div>
+
+    <div class="bottom-links" style="margin-bottom:12px;">
+        <button class="act-btn" onclick="setView('active')">未完了</button>
+        <button class="act-btn" onclick="setView('completed')">完了済み</button>
+    </div>
+
+    <!-- Active view -->
+    <div id="view-active">
+        <h2 class="section-heading" style="margin:10px 0 8px;">今日やること</h2>
+        <ul id="list-today" class="task-list"></ul>
+        <p id="empty-today" class="empty" style="display:none;">今日やるタスクはありません</p>
+
+        <h2 class="section-heading" style="margin:18px 0 8px;">通常タスク</h2>
+        <ul id="list-normal" class="task-list"></ul>
+        <p id="empty-normal" class="empty" style="display:none;">通常タスクはありません</p>
+    </div>
+
+    <!-- Completed view -->
+    <div id="view-completed" style="display:none;">
+        <ul id="list-completed" class="task-list"></ul>
+        <p id="empty-completed" class="empty" style="display:none;">完了済みタスクはありません</p>
+    </div>
+
+    <div class="bottom-links">
+        <button class="act-btn" onclick="showTrash()">ゴミ箱を見る</button>
+    </div>
+</div>
+
+<!-- ===================== SCREEN: ADD ===================== -->
+<div id="screen-add" class="screen">
+    <div class="header">
+        <h1>タスク追加</h1>
+        <button class="act-btn" onclick="showIndex()">キャンセル</button>
+    </div>
+    <div id="add-errors" style="display:none;" class="task-card">
+        <div class="task-main">
+            <p class="task-title">入力エラーがあります</p>
+            <ul id="add-error-list" class="task-meta"></ul>
+        </div>
+    </div>
+    <form class="task-card" onsubmit="submitAdd(event)">
+        <div class="task-main">
+            <p class="task-title">新規タスク情報</p>
+            <div class="task-meta" style="display:block;">
+                <p><label for="add-title">タイトル（必須）</label><br>
+                <input id="add-title" type="text" maxlength="100" style="width:100%;"></p>
+
+                <p><label for="add-detail">詳細（任意）</label><br>
+                <textarea id="add-detail" rows="5" style="width:100%;"></textarea></p>
+
+                <p><label for="add-priority">優先度</label><br>
+                <select id="add-priority">
+                    <option value="1">高</option>
+                    <option value="2" selected>中</option>
+                    <option value="3">低</option>
+                </select></p>
+
+                <p><label for="add-due_date">期限日（任意）</label><br>
+                <input id="add-due_date" type="date"></p>
+
+                <p><label for="add-estimate_min">見積時間（分・任意）</label><br>
+                <input id="add-estimate_min" type="number" min="1"></p>
+
+                <p><label for="add-repeat_type">繰り返し設定</label><br>
+                <select id="add-repeat_type">
+                    <option value="">繰り返しなし</option>
+                    <option value="daily">毎日</option>
+                    <option value="weekly">毎週</option>
+                    <option value="monthly">毎月</option>
+                </select></p>
+            </div>
+        </div>
+        <div class="task-actions">
+            <button type="submit" class="add-btn">登録</button>
+            <button type="button" class="act-btn" onclick="showIndex()">キャンセル</button>
+        </div>
+    </form>
+</div>
+
+<!-- ===================== SCREEN: EDIT ===================== -->
+<div id="screen-edit" class="screen">
+    <div class="header">
+        <h1>タスク編集</h1>
+        <button class="act-btn" onclick="showIndex()">キャンセル</button>
+    </div>
+    <div id="edit-errors" style="display:none;" class="task-card">
+        <div class="task-main">
+            <p class="task-title">入力エラーがあります</p>
+            <ul id="edit-error-list" class="task-meta"></ul>
+        </div>
+    </div>
+    <form class="task-card" onsubmit="submitEdit(event)">
+        <input type="hidden" id="edit-id">
+        <div class="task-main">
+            <p class="task-title">タスク情報</p>
+            <div class="task-meta" style="display:block;">
+                <p><label for="edit-title">タイトル（必須）</label><br>
+                <input id="edit-title" type="text" maxlength="100" style="width:100%;"></p>
+
+                <p><label for="edit-detail">詳細（任意）</label><br>
+                <textarea id="edit-detail" rows="5" style="width:100%;"></textarea></p>
+
+                <p><label for="edit-priority">優先度</label><br>
+                <select id="edit-priority">
+                    <option value="1">高</option>
+                    <option value="2">中</option>
+                    <option value="3">低</option>
+                </select></p>
+
+                <p><label for="edit-due_date">期限日（任意）</label><br>
+                <input id="edit-due_date" type="date"></p>
+
+                <p><label for="edit-estimate_min">見積時間（分・任意）</label><br>
+                <input id="edit-estimate_min" type="number" min="1"></p>
+
+                <p><label for="edit-repeat_type">繰り返し設定</label><br>
+                <select id="edit-repeat_type">
+                    <option value="">繰り返しなし</option>
+                    <option value="daily">毎日</option>
+                    <option value="weekly">毎週</option>
+                    <option value="monthly">毎月</option>
+                </select></p>
+            </div>
+        </div>
+        <div class="task-actions">
+            <button type="submit" class="add-btn">更新</button>
+            <button type="button" class="act-btn" onclick="showIndex()">キャンセル</button>
+        </div>
+    </form>
+</div>
+
+<!-- ===================== SCREEN: COMPLETE CONFIRM ===================== -->
+<div id="screen-complete" class="screen">
+    <div class="header">
+        <h1>完了確認</h1>
+        <button class="act-btn" onclick="showIndex()">キャンセル</button>
+    </div>
+    <div class="task-card">
+        <div class="task-main">
+            <p id="complete-title" class="task-title"></p>
+            <p class="task-meta">このタスクを完了にしますか？</p>
+        </div>
+    </div>
+    <form class="task-card" onsubmit="submitComplete(event)">
+        <input type="hidden" id="complete-id">
+        <div class="task-main">
+            <div class="task-meta" style="display:block;">
+                <p><label for="complete-memo">完了時のひとことメモ（任意・200文字まで）</label><br>
+                <textarea id="complete-memo" rows="4" maxlength="200" style="width:100%;"></textarea></p>
+            </div>
+        </div>
+        <div class="task-actions">
+            <button type="submit" class="add-btn">完了にする</button>
+            <button type="button" class="act-btn" onclick="showIndex()">キャンセル</button>
+        </div>
+    </form>
+</div>
+
+<!-- ===================== SCREEN: TRASH ===================== -->
+<div id="screen-trash" class="screen">
+    <div class="header">
+        <h1>ゴミ箱</h1>
+        <button class="act-btn" onclick="showIndex()">一覧へ戻る</button>
+    </div>
+    <ul id="list-trash" class="task-list"></ul>
+    <p id="empty-trash" class="empty" style="display:none;">ゴミ箱は空です</p>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ================================================================
+       Storage helpers
+    ================================================================ */
+    var STORAGE_KEY = 'kotiku_tasks';
+    var nextIdKey   = 'kotiku_next_id';
+
+    function loadTasks() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveTasks(tasks) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function nextId() {
+        var n = parseInt(localStorage.getItem(nextIdKey) || '1', 10);
+        localStorage.setItem(nextIdKey, String(n + 1));
+        return n;
+    }
+
+    function now() {
+        return new Date().toISOString().replace('T', ' ').slice(0, 19);
+    }
+
+    /* ================================================================
+       Screen management
+    ================================================================ */
+    var currentView = 'active';
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(function (s) {
+            s.classList.remove('active');
+        });
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    window.showIndex = function () { renderIndex(); showScreen('screen-index'); };
+    window.showAdd   = function () { clearAddForm(); showScreen('screen-add'); };
+    window.showTrash = function () { renderTrash(); showScreen('screen-trash'); };
+
+    window.setView = function (v) {
+        currentView = v;
+        var elA = document.getElementById('view-active');
+        var elC = document.getElementById('view-completed');
+        if (v === 'completed') {
+            elA.style.display = 'none';
+            elC.style.display = 'block';
+        } else {
+            elA.style.display = 'block';
+            elC.style.display = 'none';
+        }
+        renderIndex();
+    };
+
+    /* ================================================================
+       Escape helper
+    ================================================================ */
+    function esc(str) {
+        if (!str && str !== 0) { return ''; }
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    /* ================================================================
+       Render helpers
+    ================================================================ */
+    function priorityDot(p) {
+        var cls = p === 1 ? 'dot-high' : p === 2 ? 'dot-mid' : 'dot-low';
+        return '<span class="priority-dot ' + cls + '"></span>';
+    }
+
+    function priorityBadge(p) {
+        if (p === 1) { return '<span class="priority-badge badge-high">優先度: 高</span>'; }
+        if (p === 2) { return '<span class="priority-badge badge-mid">優先度: 中</span>'; }
+        if (p === 3) { return '<span class="priority-badge badge-low">優先度: 低</span>'; }
+        return '<span>優先度: -</span>';
+    }
+
+    function buildTaskCard(task, mode) {
+        // mode: 'today' | 'normal' | 'completed' | 'trash'
+        var li = document.createElement('li');
+        li.className = 'task-card' + (mode === 'completed' || mode === 'trash' ? ' done' : '');
+
+        var html = '';
+
+        if (mode === 'today' || mode === 'normal') {
+            html += priorityDot(task.priority);
+        }
+
+        var detailHtml = task.detail
+            ? '<p class="task-detail">' + esc(task.detail).replace(/\n/g, '<br>') + '</p>'
+            : '';
+
+        var metaHtml = '';
+        if (mode === 'completed') {
+            var memo = task.completions && task.completions.length > 0
+                ? task.completions[task.completions.length - 1].complete_memo
+                : null;
+            var completedAt = task.completions && task.completions.length > 0
+                ? task.completions[task.completions.length - 1].completed_at
+                : null;
+            metaHtml = '<div class="task-meta">'
+                + '<span>完了メモ: ' + (memo ? esc(memo) : 'なし') + '</span>'
+                + (completedAt ? '<span>完了日時: ' + esc(completedAt) + '</span>' : '')
+                + '</div>';
+        } else if (mode === 'trash') {
+            metaHtml = '<div class="task-meta"><span>削除日時: ' + esc(task.deleted_at) + '</span></div>';
+        } else {
+            var countdownHtml = task.estimate_min
+                ? '<span class="js-countdown" data-created-at="' + esc(task.created_at) + '" data-estimate-min="' + esc(task.estimate_min) + '">計算中...</span>'
+                : '';
+            metaHtml = '<div class="task-meta">'
+                + priorityBadge(task.priority)
+                + (task.due_date ? '<span>期限: ' + esc(task.due_date) + '</span>' : '')
+                + countdownHtml
+                + '</div>';
+        }
+
+        var actionsHtml = '<div class="task-actions">';
+        if (mode === 'today') {
+            actionsHtml += '<button class="act-btn" onclick="toggleToday(' + task.id + ')">今日やる解除</button>';
+            actionsHtml += '<button class="act-btn" onclick="showComplete(' + task.id + ')">完了</button>';
+            actionsHtml += '<button class="act-btn" onclick="showEdit(' + task.id + ')">編集</button>';
+            actionsHtml += '<button class="act-btn" onclick="deleteTask(' + task.id + ')">削除</button>';
+        } else if (mode === 'normal') {
+            actionsHtml += '<button class="act-btn" onclick="toggleToday(' + task.id + ')">今日やる</button>';
+            actionsHtml += '<button class="act-btn" onclick="showComplete(' + task.id + ')">完了</button>';
+            actionsHtml += '<button class="act-btn" onclick="showEdit(' + task.id + ')">編集</button>';
+            actionsHtml += '<button class="act-btn" onclick="deleteTask(' + task.id + ')">削除</button>';
+        } else if (mode === 'completed') {
+            actionsHtml += '<button class="act-btn" onclick="deleteTask(' + task.id + ')">削除</button>';
+        } else if (mode === 'trash') {
+            actionsHtml += '<button class="act-btn" onclick="restoreTask(' + task.id + ')">復元</button>';
+            actionsHtml += '<button class="act-btn" onclick="permanentDelete(' + task.id + ')">完全削除</button>';
+        }
+        actionsHtml += '</div>';
+
+        html += '<div class="task-main"><p class="task-title">' + esc(task.title) + '</p>'
+            + detailHtml + metaHtml + '</div>' + actionsHtml;
+
+        li.innerHTML = html;
+        return li;
+    }
+
+    /* ================================================================
+       Render index
+    ================================================================ */
+    function renderIndex() {
+        var tasks = loadTasks();
+
+        if (currentView === 'active') {
+            var today  = tasks.filter(function (t) { return t.status === 0 && t.today_flag === 1 && !t.deleted_at; });
+            var normal = tasks.filter(function (t) { return t.status === 0 && t.today_flag === 0 && !t.deleted_at; });
+
+            // sort: priority ASC, due_date ASC, id DESC
+            function sortActive(arr) {
+                return arr.slice().sort(function (a, b) {
+                    if (a.priority !== b.priority) { return a.priority - b.priority; }
+                    if (a.due_date && b.due_date) { return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0; }
+                    if (a.due_date) { return -1; }
+                    if (b.due_date) { return 1; }
+                    return b.id - a.id;
+                });
+            }
+
+            today  = sortActive(today);
+            normal = sortActive(normal);
+
+            renderList('list-today',  today,  'today',  'empty-today');
+            renderList('list-normal', normal, 'normal', 'empty-normal');
+        } else {
+            var completed = tasks.filter(function (t) { return t.status === 1 && !t.deleted_at; });
+            completed = completed.slice().sort(function (a, b) { return b.id - a.id; });
+            renderList('list-completed', completed, 'completed', 'empty-completed');
+        }
+    }
+
+    function renderList(listId, tasks, mode, emptyId) {
+        var ul = document.getElementById(listId);
+        var ep = document.getElementById(emptyId);
+        ul.innerHTML = '';
+        if (tasks.length === 0) {
+            ep.style.display = 'block';
+        } else {
+            ep.style.display = 'none';
+            tasks.forEach(function (t) {
+                ul.appendChild(buildTaskCard(t, mode));
+            });
+        }
+    }
+
+    /* ================================================================
+       Render trash
+    ================================================================ */
+    function renderTrash() {
+        var tasks = loadTasks().filter(function (t) { return !!t.deleted_at; });
+        tasks = tasks.slice().sort(function (a, b) {
+            return a.deleted_at < b.deleted_at ? 1 : -1;
+        });
+        var ul = document.getElementById('list-trash');
+        var ep = document.getElementById('empty-trash');
+        ul.innerHTML = '';
+        if (tasks.length === 0) {
+            ep.style.display = 'block';
+        } else {
+            ep.style.display = 'none';
+            tasks.forEach(function (t) { ul.appendChild(buildTaskCard(t, 'trash')); });
+        }
+    }
+
+    /* ================================================================
+       Add task
+    ================================================================ */
+    function clearAddForm() {
+        document.getElementById('add-title').value = '';
+        document.getElementById('add-detail').value = '';
+        document.getElementById('add-priority').value = '2';
+        document.getElementById('add-due_date').value = '';
+        document.getElementById('add-estimate_min').value = '';
+        document.getElementById('add-repeat_type').value = '';
+        document.getElementById('add-errors').style.display = 'none';
+        document.getElementById('add-error-list').innerHTML = '';
+    }
+
+    window.submitAdd = function (e) {
+        e.preventDefault();
+        var title       = document.getElementById('add-title').value.trim();
+        var detail      = document.getElementById('add-detail').value.trim();
+        var priority    = parseInt(document.getElementById('add-priority').value, 10);
+        var dueDate     = document.getElementById('add-due_date').value.trim();
+        var estimateMin = document.getElementById('add-estimate_min').value.trim();
+        var repeatType  = document.getElementById('add-repeat_type').value.trim();
+
+        var errors = [];
+        if (!title) { errors.push('タイトルは必須です。'); }
+        else if (title.length > 100) { errors.push('タイトルは100文字以内で入力してください。'); }
+        if (![1, 2, 3].includes(priority)) { errors.push('優先度が不正です。'); }
+        if (!['', 'daily', 'weekly', 'monthly'].includes(repeatType)) { errors.push('繰り返し設定が不正です。'); }
+        if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) { errors.push('期限日の形式が不正です。'); }
+        if (estimateMin !== '' && (!/^\d+$/.test(estimateMin) || parseInt(estimateMin, 10) <= 0)) {
+            errors.push('見積時間は正の整数で入力してください。');
+        }
+
+        if (errors.length > 0) {
+            var el = document.getElementById('add-error-list');
+            el.innerHTML = errors.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
+            document.getElementById('add-errors').style.display = 'flex';
+            return;
+        }
+
+        var tasks = loadTasks();
+        var n = now();
+        tasks.push({
+            id:           nextId(),
+            title:        title,
+            detail:       detail || null,
+            priority:     priority,
+            due_date:     dueDate || null,
+            estimate_min: estimateMin !== '' ? parseInt(estimateMin, 10) : null,
+            repeat_type:  repeatType || null,
+            status:       0,
+            today_flag:   0,
+            deleted_at:   null,
+            created_at:   n,
+            updated_at:   n,
+            completions:  []
+        });
+        saveTasks(tasks);
+        showIndex();
+    };
+
+    /* ================================================================
+       Edit task
+    ================================================================ */
+    window.showEdit = function (id) {
+        var tasks = loadTasks();
+        var task  = tasks.find(function (t) { return t.id === id; });
+        if (!task) { return; }
+
+        document.getElementById('edit-id').value            = id;
+        document.getElementById('edit-title').value         = task.title || '';
+        document.getElementById('edit-detail').value        = task.detail || '';
+        document.getElementById('edit-priority').value      = String(task.priority || 2);
+        document.getElementById('edit-due_date').value      = task.due_date || '';
+        document.getElementById('edit-estimate_min').value  = task.estimate_min != null ? String(task.estimate_min) : '';
+        document.getElementById('edit-repeat_type').value   = task.repeat_type || '';
+        document.getElementById('edit-errors').style.display = 'none';
+        document.getElementById('edit-error-list').innerHTML = '';
+
+        showScreen('screen-edit');
+    };
+
+    window.submitEdit = function (e) {
+        e.preventDefault();
+        var id          = parseInt(document.getElementById('edit-id').value, 10);
+        var title       = document.getElementById('edit-title').value.trim();
+        var detail      = document.getElementById('edit-detail').value.trim();
+        var priority    = parseInt(document.getElementById('edit-priority').value, 10);
+        var dueDate     = document.getElementById('edit-due_date').value.trim();
+        var estimateMin = document.getElementById('edit-estimate_min').value.trim();
+        var repeatType  = document.getElementById('edit-repeat_type').value.trim();
+
+        var errors = [];
+        if (!title) { errors.push('タイトルは必須です。'); }
+        else if (title.length > 100) { errors.push('タイトルは100文字以内で入力してください。'); }
+        if (![1, 2, 3].includes(priority)) { errors.push('優先度が不正です。'); }
+        if (!['', 'daily', 'weekly', 'monthly'].includes(repeatType)) { errors.push('繰り返し設定が不正です。'); }
+        if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) { errors.push('期限日の形式が不正です。'); }
+        if (estimateMin !== '' && (!/^\d+$/.test(estimateMin) || parseInt(estimateMin, 10) <= 0)) {
+            errors.push('見積時間は正の整数で入力してください。');
+        }
+
+        if (errors.length > 0) {
+            var el = document.getElementById('edit-error-list');
+            el.innerHTML = errors.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
+            document.getElementById('edit-errors').style.display = 'flex';
+            return;
+        }
+
+        var tasks = loadTasks();
+        var idx   = tasks.findIndex(function (t) { return t.id === id; });
+        if (idx === -1) { showIndex(); return; }
+
+        tasks[idx].title        = title;
+        tasks[idx].detail       = detail || null;
+        tasks[idx].priority     = priority;
+        tasks[idx].due_date     = dueDate || null;
+        tasks[idx].estimate_min = estimateMin !== '' ? parseInt(estimateMin, 10) : null;
+        tasks[idx].repeat_type  = repeatType || null;
+        tasks[idx].updated_at   = now();
+
+        saveTasks(tasks);
+        showIndex();
+    };
+
+    /* ================================================================
+       Complete task
+    ================================================================ */
+    window.showComplete = function (id) {
+        var tasks = loadTasks();
+        var task  = tasks.find(function (t) { return t.id === id && !t.deleted_at; });
+        if (!task) { return; }
+        document.getElementById('complete-id').value    = id;
+        document.getElementById('complete-title').textContent = task.title;
+        document.getElementById('complete-memo').value  = '';
+        showScreen('screen-complete');
+    };
+
+    window.submitComplete = function (e) {
+        e.preventDefault();
+        var id   = parseInt(document.getElementById('complete-id').value, 10);
+        var memo = document.getElementById('complete-memo').value.trim();
+        if (memo.length > 200) { memo = memo.slice(0, 200); }
+
+        var tasks = loadTasks();
+        var idx   = tasks.findIndex(function (t) { return t.id === id; });
+        if (idx === -1) { showIndex(); return; }
+
+        tasks[idx].status     = 1;
+        tasks[idx].updated_at = now();
+        tasks[idx].completions.push({ complete_memo: memo || null, completed_at: now() });
+
+        saveTasks(tasks);
+        showIndex();
+    };
+
+    /* ================================================================
+       Delete / restore / permanent delete
+    ================================================================ */
+    window.deleteTask = function (id) {
+        var tasks = loadTasks();
+        var idx   = tasks.findIndex(function (t) { return t.id === id; });
+        if (idx === -1) { return; }
+        tasks[idx].deleted_at = now();
+        saveTasks(tasks);
+        renderIndex();
+    };
+
+    window.restoreTask = function (id) {
+        var tasks = loadTasks();
+        var idx   = tasks.findIndex(function (t) { return t.id === id; });
+        if (idx === -1) { return; }
+        tasks[idx].deleted_at = null;
+        tasks[idx].status     = 0;
+        saveTasks(tasks);
+        renderTrash();
+    };
+
+    window.permanentDelete = function (id) {
+        var tasks = loadTasks().filter(function (t) { return t.id !== id; });
+        saveTasks(tasks);
+        renderTrash();
+    };
+
+    /* ================================================================
+       Toggle today flag
+    ================================================================ */
+    window.toggleToday = function (id) {
+        var tasks = loadTasks();
+        var idx   = tasks.findIndex(function (t) { return t.id === id; });
+        if (idx === -1) { return; }
+        tasks[idx].today_flag = tasks[idx].today_flag === 1 ? 0 : 1;
+        tasks[idx].updated_at = now();
+        saveTasks(tasks);
+        renderIndex();
+    };
+
+    /* ================================================================
+       Countdown timer (same logic as footer.tpl)
+    ================================================================ */
+    function parseDateTime(value) {
+        if (!value) { return null; }
+        var normalized = value.replace(' ', 'T');
+        var date = new Date(normalized);
+        return isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatRemaining(diffMs) {
+        var totalSec = Math.floor(diffMs / 1000);
+        var hours   = Math.floor(totalSec / 3600);
+        var minutes = Math.floor((totalSec % 3600) / 60);
+        var seconds = totalSec % 60;
+        if (hours > 1) {
+            return 'あと' + hours + '時間' + minutes + '分' + seconds + '秒';
+        }
+        return 'あと' + (hours * 60 + minutes) + '分' + seconds + '秒';
+    }
+
+    function formatOver(diffMs) {
+        var overSec = Math.floor(Math.abs(diffMs) / 1000);
+        var hours   = Math.floor(overSec / 3600);
+        var minutes = Math.floor((overSec % 3600) / 60);
+        return hours + '時間' + minutes + '分 超過';
+    }
+
+    function updateCountdown() {
+        var elements = document.querySelectorAll('.js-countdown');
+        var now2 = new Date();
+        elements.forEach(function (el) {
+            var createdAt   = parseDateTime(el.getAttribute('data-created-at'));
+            var estimateMin = parseInt(el.getAttribute('data-estimate-min'), 10);
+            if (!createdAt || !estimateMin || estimateMin <= 0) { el.textContent = ''; return; }
+            var endAt  = new Date(createdAt.getTime() + estimateMin * 60 * 1000);
+            var diffMs = endAt.getTime() - now2.getTime();
+            if (diffMs < 0) {
+                el.textContent = formatOver(diffMs);
+                el.style.color = '#d93025';
+            } else if (diffMs > 3600 * 1000) {
+                el.textContent = formatRemaining(diffMs);
+                el.style.color = '#188038';
+            } else {
+                el.textContent = formatRemaining(diffMs);
+                el.style.color = '#f9ab00';
+            }
+        });
+    }
+
+    setInterval(updateCountdown, 1000);
+
+    /* ================================================================
+       Initial render
+    ================================================================ */
+    renderIndex();
+
+}());
+</script>
+</body>
+</html>
