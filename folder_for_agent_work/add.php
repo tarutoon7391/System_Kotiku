@@ -7,11 +7,11 @@
 // ==============================
 
 // 共通ファイルの読み込み準備
-$basePath = dirname(__DIR__, 2);
+$basePath = dirname(__DIR__);
 // DB接続（$pdo）
-require_once $basePath . '/php_include/inc_dbinfo.php';
+require_once $basePath . '/inc_dbinfo.php';
 // Smarty初期化（$Smarty_obj）
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // バリデーションエラーメッセージを入れる配列
 $errors = [];

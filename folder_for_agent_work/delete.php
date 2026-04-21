@@ -5,9 +5,9 @@
 // 役割: タスクを物理削除せず deleted_at に時刻を入れて非表示化
 // ==============================
 
-$basePath = dirname(__DIR__, 2);
-require_once $basePath . '/php_include/inc_dbinfo.php';
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/inc_dbinfo.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // この処理はリンク遷移（GET）想定
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

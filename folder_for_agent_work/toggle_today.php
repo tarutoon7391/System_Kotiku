@@ -5,9 +5,9 @@
 // 役割: today_flag を 0⇔1 でトグルする
 // ==============================
 
-$basePath = dirname(__DIR__, 2);
-require_once $basePath . '/php_include/inc_dbinfo.php';
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/inc_dbinfo.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // GETパラメータのidを整数で受け取る
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
