@@ -10,12 +10,12 @@
 
 // dirname(__DIR__, 2) は「このファイルから2階層上のフォルダ」を表します。
 // 共通ファイルを絶対パスに近い形で安全に読み込むために使います。
-$basePath = dirname(__DIR__, 2);
+$basePath = dirname(__DIR__);
 
 // DB接続（$pdo）を使えるようにします。
-require_once $basePath . '/php_include/inc_dbinfo.php';
+require_once $basePath . '/inc_dbinfo.php';
 // Smarty（テンプレート表示エンジン）を初期化します。
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // 一覧の表示モードを決めます。
 // view=completed のときは完了済み、それ以外は未完了（active）を表示します。

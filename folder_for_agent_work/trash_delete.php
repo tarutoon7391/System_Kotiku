@@ -5,9 +5,9 @@
 // 役割: 論理削除済みタスクをDBから物理削除する
 // ==============================
 
-$basePath = dirname(__DIR__, 2);
-require_once $basePath . '/php_include/inc_dbinfo.php';
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/inc_dbinfo.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // 完全削除対象idを取得
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;

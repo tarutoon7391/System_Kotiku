@@ -8,7 +8,7 @@
 
 // Smartyクラスの読み込み（環境依存パスを避けて探索）
 if (!class_exists('Smarty', false)) {
-	$basePath = dirname(__DIR__); // .../0409
+	$basePath = __DIR__; // リポジトリルート
 	$envSmartyDir = getenv('SMARTY_DIR');
 
 	$candidateDirs = [

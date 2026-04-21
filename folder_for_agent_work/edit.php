@@ -6,9 +6,9 @@
 // POST: 入力値を検証して更新
 // ==============================
 
-$basePath = dirname(__DIR__, 2);
-require_once $basePath . '/php_include/inc_dbinfo.php';
-$Smarty_obj = require $basePath . '/php_include/inc_smarty.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/inc_dbinfo.php';
+$Smarty_obj = require $basePath . '/inc_smarty.php';
 
 // POST時は hidden の id、GET時はクエリの id を使います。
 // これにより同じファイルで「表示」と「更新」を両方扱えます。
